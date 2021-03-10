@@ -5,13 +5,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-
-
+using Microsoft.AspNetCore.Cors;
 
 namespace core_crud_js.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [EnableCors("permitir")]
     public class PersonaController : ControllerBase
     {
 

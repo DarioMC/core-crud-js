@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>People</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <style>
+        h1 {text-align: center;}
+        form {text-align: center;}
+    </style>
+</head>
+<body style="background-color:powderblue;">
+    <h1 text-align: center;>People</h1>
+    <hr>
+    <form id="frm">
+        <input type="hidden" value="" name="Id" id="Id">
+        <label>Name: </label>
+        <input type="text" name="Nombre" id="Nombre">
+        <br>
+        <br>
+        <label>Age: </label>
+        <input type="number" name="Edad" id="Edad">
+        <br>
+        <br>
+        <input type="button" value="Save" onclick="Save();">
+        <br>
+    </form>
+    <hr>
+    <div id="divLista"></div>
+</body>
+</html>
+
+<div>
+  <script>
+var url="https://localhost:44348/api/persona";
+
+Get();
+
+function Save(){
+    if(document.getElementById("Id").value!=""){
+        Edit();
+    }else{
+        Post();
+    }
+}
+
+function Post(){
+    fetch(url, {
+        method: "POST",
+        body: JSON.stringify({
+            Nombre: document.getElementById("Nombre").value,
+            Edad: parseInt(document.getElementById("Edad").value)
+        }),
+        headers:{
+            'Accept': "application/json",
+            "Content-Type": "application/json"
+            }
+        }).then(function(response){
+            if(response.ok){
+                return response.text();
+            }else{
+                alert("Execution error");
+            }
+        }).then(function(Data){
+            console.log(Data);
+            Get();
+            document.getElementById("Id").value="";
+            document.getElementById("Nombre").value="";
+            document.getElementById("Edad").value="";
+        })
+
+}
+
+
+function Delete(id){
+    fetch(url, {
+        method: "DELETE",
+        body: JSON.stringify({
+            Id: id
+        }),
+        headers:{
+            'Accept': "application/json",
+            "Content-Type": "application/json"
+            }
+        }).then(function(response){
+            if(response.ok){
+                return response.text();
+            }else{
+                alert("Execution error");
+            }
+        }).then(function(Data){
+            console.log(Data);
+            Get();
+        })
+}
+
+function OpenEdit(Id,Nombre,Edad){
+    document.getElementById("Id").value=Id;
+    document.getElementById("Nombre").value=Nombre;
+    document.getElementById("Edad").value=Edad;
+
+}
+
+function Edit(){
+    fetch(url, {
+        method: "PUT",
+        body: JSON.stringify({
+            Id:     parseInt(document.getElementById("Id").value),
+            Nombre: document.getElementById("Nombre").value,
+            Edad:   parseInt(document.getElementById("Edad").value)
+            
+        }),
+        headers:{
+            'Accept': "application/json",
+            "Content-Type": "application/json"
+            }
+        }).then(function(response){
+            if(response.ok){
+                return response.text();
+            }else{
+                alert("Execution error");
+            }
+        }).then(function(Data){
+            console.log(Data);
+            Get();
+            document.getElementById("Id").value="";
+            document.getElementById("Nombre").value="";
+            document.getElementById("Edad").value="";
+        })
+}
+
+function Get(){
+    fetch(url).then(function(response){
+        return response.json();
+    }).then(function(Data){
+
+        document.getElementById("divLista").innerHTML="";
+        for(i=0; i<Data.length; i++){
+            let divElement            = document.createElement("div");
+            let divSpan               = document.createElement("span");
+            let divButtonDelete       = document.createElement("button");
+            let divButtonEdit         = document.createElement("button");
+
+        
+            divSpan.innerHTML         = " ----|  "+Data[i].nombre+" "+" "+Data[i].edad +" |---- ";
+            divButtonDelete.innerHTML = "Delete";
+            divButtonDelete.MyId      = Data[i].id;
+            divButtonDelete.addEventListener("click",function(myButton){
+                Delete(myButton.target.MyId);
+            })
+            divButtonEdit.innerHTML    = "Edit";
+            divButtonEdit.MyId         = Data[i].id;
+            divButtonEdit.MyName       = Data[i].nombre;
+            divButtonEdit.MyAge        = Data[i].edad;
+            divButtonEdit.addEventListener("click",function(myButton){
+                OpenEdit(
+                    myButton.target.MyId,
+                    myButton.target.MyName,
+                    myButton.target.MyAge
+                )
+            })
+
+            divElement.appendChild(divSpan);
+            divElement.appendChild(divButtonDelete);
+            divElement.appendChild(divButtonEdit);
+            document.getElementById("divLista").appendChild(divElement);
+
+
+        }
+    })
+}
+ </script>
+</div>
